@@ -1,7 +1,5 @@
-Bem vindo(a) ao ITF (I Talk Free)!
-
 # Introdução
-O ITF (I Talk Free) é uma plataforma de mensagens de texto, que tem como objetivo ser simples, e seguro o suficiente para o seu dia a dia, e é claro, Open Source, permitindo o uso dele em qualquer tipo de ambiente, seja ele corporativo ou pessoal.
+Bem vindo(a) ao ITF (I Talk Free)! O ITF (I Talk Free) é uma plataforma de mensagens de texto, que tem como objetivo ser simples, e seguro o suficiente para o seu dia a dia, e é claro, Open Source, permitindo o uso dele em qualquer tipo de ambiente, seja ele corporativo ou pessoal.
 
 # Como realizar a execução?
 
