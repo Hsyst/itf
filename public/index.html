@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITF - Chat</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        :root {
+            --bs-body-bg: #1a1a2e;
+            --bs-body-color: #e0e0e0;
+            --bs-dark: #16213e;
+            --bs-dark-light: #0f3460;
+            --bs-primary: #6366f1;
+            --bs-secondary: #8b5cf6;
+            --bs-success: #43b581;
+            --bs-info: #5865f2;
+            --bs-warning: #faa61a;
+            --bs-danger: #f04747;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bs-body-bg) 0%, var(--bs-dark) 50%, var(--bs-dark-light) 100%);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .offcanvas, .modal-content {
+            background-color: var(--bs-dark);
+            color: var(--bs-body-color);
+            border: none;
+        }
+
+        .offcanvas-header, .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .offcanvas-body, .modal-body, .modal-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-control, .form-select {
+            background-color: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--bs-body-color);
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.3);
+            background-color: rgba(15, 23, 42, 0.7);
+            color: var(--bs-body-color);
+        }
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.6);
+            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%); /* Keep gradient on hover */
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline-secondary {
+            color: var(--bs-body-color);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .btn-outline-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--bs-body-color);
+        }
+
+        .list-group-item {
+            background-color: transparent;
+            color: var(--bs-body-color);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .list-group-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .list-group-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--bs-body-color);
+        }
+
+        .sidebar-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            background-color: #36393f;
+            cursor: pointer;
+            transition: border-radius 0.2s ease, background-color 0.2s ease;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+        .sidebar-icon:hover {
+            border-radius: 30%;
+            background-color: var(--bs-info);
+        }
+        .sidebar-icon.active {
+            border-radius: 30%;
+            background-color: var(--bs-info);
+        }
+        .sidebar-icon.home {
+            background-color: var(--bs-info);
+        }
+        .sidebar-icon.add-server {
+            background-color: #2d3136;
+            color: #4f545c;
+        }
+        .sidebar-icon.add-server:hover {
+            background-color: #4f545c;
+            color: white;
+        }
+
+        .profile-pic-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-pic-medium {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .profile-pic-large {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid var(--bs-dark-light); /* Cor de fundo do chat */
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+        .status-online { background-color: var(--bs-success); }
+        .status-offline { background-color: #747f8d; }
+        .status-unavailable { background-color: var(--bs-warning); }
+        .status-hibernating { background-color: var(--bs-danger); }
+
+        .message-bubble {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+        }
+        .message-content {
+            word-wrap: break-word;
+        }
+
+        .error-message {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* Notificações */
+        #notificationContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .notification-item {
+            background-color: var(--bs-dark);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 250px;
+            max-width: 350px;
+            border-left: 5px solid var(--bs-info);
+            animation: fadeInRight 0.5s ease-out, fadeOutRight 0.5s ease-in 2.5s forwards;
+        }
+        .notification-item.error {
+            border-left-color: var(--bs-danger);
+        }
+        .notification-item .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-left: 15px;
+        }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* Custom scrollbar for chat messages */
+        #messagesContainer {
+            display: flex;
+            flex-direction: column-reverse; /* Start from bottom */
+            overflow-y: auto;
+            padding: 1rem;
+            flex-grow: 1;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scrollable-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .scrollable-content::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="d-flex vh-100 text-light">
+
+    <!-- Server Sidebar (Offcanvas for mobile) -->
+    <div class="d-flex flex-column align-items-center py-3 bg-dark" style="width: 80px;">
+        <button class="btn p-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#serverOffcanvas" aria-controls="serverOffcanvas">
+            <i class="bi bi-list fs-3 text-light"></i>
+        </button>
+
+        <div id="homeIcon" class="sidebar-icon home mb-3" title="Mensagens Diretas e Amigos">
+            <i class="bi bi-chat-dots-fill fs-5"></i>
+        </div>
+        <div class="w-50 border-top border-secondary mb-3"></div>
+        <div id="serverList" class="d-flex flex-column align-items-center">
+            <!-- Server icons will be loaded here -->
+        </div>
+        <div class="w-50 border-top border-secondary my-3"></div>
+        <div id="addServerIcon" class="sidebar-icon add-server" title="Adicionar Servidor">
+            <i class="bi bi-plus-lg fs-5"></i>
+        </div>
+        <div id="exploreServersIcon" class="sidebar-icon add-server mt-2" title="Explorar Servidores Públicos">
+            <i class="bi bi-compass-fill fs-5"></i>
+        </div>
+    </div>
+
+    <!-- Main Sidebar (Offcanvas for mobile) -->
+    <div class="offcanvas offcanvas-start bg-dark" tabindex="-1" id="mainOffcanvas" aria-labelledby="mainOffcanvasLabel" data-bs-scroll="true">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title text-white" id="sidebarHeader"></h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body d-flex flex-column p-2">
+            <!-- Channels Section (visible in server mode) -->
+            <div id="channelsSection" class="flex-grow-1 overflow-auto scrollable-content d-none">
+                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                    <h2 class="text-secondary text-uppercase fs-6 fw-semibold mb-0">Canais de Texto</h2>
+                    <button id="createChannelBtn" class="btn btn-link text-secondary p-0" title="Criar Canal">
+                        <i class="bi bi-plus-lg fs-5"></i>
+                    </button>
+                </div>
+                <div id="channelList" class="list-group list-group-flush mb-4">
+                    <!-- Channels will be loaded here -->
+                </div>
+                <h2 class="text-secondary text-uppercase fs-6 fw-semibold mb-2 px-2">Membros</h2>
+                <div id="memberList" class="list-group list-group-flush mb-4">
+                    <!-- Members will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Home Section (visible in Home mode) -->
+            <div id="homeSection" class="flex-grow-1 overflow-auto scrollable-content d-none">
+                <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                    <h2 class="text-white fs-5 fw-bold mb-0">Mensagens Diretas</h2>
+                    <button id="findUserBtn" class="btn btn-link text-secondary p-0" title="Encontrar Usuário">
+                        <i class="bi bi-person-add fs-5"></i>
+                    </button>
+                </div>
+                <div id="dmList" class="list-group list-group-flush mb-4">
+                    <!-- DMs will be loaded here -->
+                </div>
+
+                <h2 class="text-white fs-5 fw-bold mb-3 px-2">Amigos</h2>
+                <div id="friendList" class="list-group list-group-flush mb-4">
+                    <!-- Friends will be loaded here -->
+                </div>
+
+                <h2 class="text-white fs-5 fw-bold mb-3 px-2">Solicitações de Amizade</h2>
+                <div id="friendRequestsList" class="list-group list-group-flush mb-4">
+                    <!-- Friend requests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Logged In User Profile -->
+            <div id="loggedInUserProfile" class="mt-auto bg-dark-light p-3 rounded d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="position-relative">
+                        <img id="userProfilePic" src="" alt="Profile" class="profile-pic-small">
+                        <div id="userStatusIndicator" class="status-indicator"></div>
+                    </div>
+                    <div class="ms-2">
+                        <p id="userNickname" class="text-white fw-semibold mb-0"></p>
+                        <p id="userIdentifier" class="text-secondary small mb-0"></p>
+                    </div>
+                </div>
+                <div>
+                    <button id="userSettingsBtn" class="btn btn-link text-secondary p-0 me-2" title="Configurações do Usuário">
+                        <i class="bi bi-gear-fill fs-5"></i>
+                    </button>
+                    <button id="logoutBtn" class="btn btn-link text-secondary p-0" title="Sair">
+                        <i class="bi bi-box-arrow-right fs-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div id="chatArea" class="d-flex flex-column flex-grow-1 bg-dark-light border-start border-secondary">
+        <div id="chatHeader" class="bg-dark p-3 border-bottom border-secondary d-flex align-items-center">
+            <h1 id="chatTitle" class="fs-4 fw-bold text-white mb-0"></h1>
+            <span id="chatDescription" class="text-secondary ms-2 small"></span>
+        </div>
+
+        <div id="messagesContainer" class="flex-grow-1 overflow-auto p-3 scrollable-content">
+            <!-- Messages will be loaded here -->
+            <div id="typingIndicators" class="text-secondary small mt-2"></div>
+        </div>
+
+        <div class="p-3 bg-dark border-top border-secondary">
+            <form id="messageForm" class="d-flex align-items-center">
+                <input type="text" id="messageInput" placeholder="Enviar mensagem..."
+                       class="form-control flex-grow-1 me-2">
+                <button type="submit" class="btn btn-primary">
+                    Enviar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="profileModalLabel">Perfil do Usuário</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalProfilePic" src="" alt="Profile" class="profile-pic-large mx-auto mb-3">
+                    <img id="modalBanner" src="" alt="Banner" class="w-100 h-auto object-fit-cover rounded mb-3" style="max-height: 150px;">
+                    <h3 id="modalNickname" class="fs-2 fw-bold text-white mb-1"></h3>
+                    <p id="modalIdentifier" class="text-secondary fs-6 mb-2"></p>
+                    <p id="modalStatus" class="small fw-semibold mb-3"></p>
+                    <p id="modalPronouns" class="text-light mb-1"></p>
+                    <p id="modalDescription" class="text-light mb-3"></p>
+                    <p class="text-secondary small mb-1">Membro desde: <span id="modalCreatedAt"></span> (<span id="modalAccountAge"></span> dias)</p>
+                    <p class="text-secondary small">Amigos: <span id="modalFriendCount"></span> | Servidores: <span id="modalServerCount"></span></p>
+                    <div class="mt-4 d-flex justify-content-center gap-3">
+                        <button id="addFriendBtn" class="btn btn-primary btn-sm d-none">Adicionar Amigo</button>
+                        <button id="startDmBtn" class="btn btn-primary btn-sm d-none">Enviar Mensagem</button>
+                        <button id="removeFriendBtn" class="btn btn-danger btn-sm d-none">Remover Amigo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Settings Modal -->
+    <div class="modal fade" id="userSettingsModal" tabindex="-1" aria-labelledby="userSettingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="userSettingsModalLabel">Configurações do Usuário</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="userSettingsModalErrorContainer" class="mb-3 d-none"></div>
+                    <form id="userSettingsForm" class="row g-3">
+                        <div class="col-12">
+                            <label for="editPronouns" class="form-label small text-secondary">Pronomes</label>
+                            <input type="text" id="editPronouns" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label for="editDescription" class="form-label small text-secondary">Descrição</label>
+                            <textarea id="editDescription" rows="3" class="form-control"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="editStatus" class="form-label small text-secondary">Status</label>
+                            <select id="editStatus" class="form-select">
+                                <option value="online">Online</option>
+                                <option value="offline">Offline</option>
+                                <option value="unavailable">Ausente</option>
+                                <option value="hibernating">Hibernando</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="editProfilePic" class="form-label small text-secondary">Foto de Perfil</label>
+                            <input type="file" id="editProfilePic" accept="image/*" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label for="editBanner" class="form-label small text-secondary">Banner</label>
+                            <input type="file" id="editBanner" accept="image/*" class="form-control">
+                        </div>
+                        <div class="col-12 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="editNotificationsEnabled">
+                            <label class="form-check-label text-secondary" for="editNotificationsEnabled">Notificações Ativadas</label>
+                        </div>
+                        <div class="col-12 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="editShowOnlineStatus">
+                            <label class="form-check-label text-secondary" for="editShowOnlineStatus">Mostrar Status Online</label>
+                        </div>
+                        <div class="col-12 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="editAllowFriendRequests">
+                            <label class="form-check-label text-secondary" for="editAllowFriendRequests">Permitir Solicitações de Amizade</label>
+                        </div>
+                        <div class="col-12 form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="editAllowDMs">
+                            <label class="form-check-label text-secondary" for="editAllowDMs">Permitir Mensagens Diretas</label>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">Salvar Alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Join Server Modal -->
+    <div class="modal fade" id="addServerModal" tabindex="-1" aria-labelledby="addServerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="addServerModalLabel">Adicionar Servidor</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="addServerModalErrorContainer" class="mb-3 d-none"></div>
+                    <div class="mb-3 d-flex justify-content-center">
+                        <button id="showCreateServerFormBtn" class="btn btn-primary me-2">Criar Servidor</button>
+                        <button id="showJoinServerFormBtn" class="btn btn-outline-secondary">Entrar em Servidor</button>
+                    </div>
+
+                    <form id="createServerForm" class="row g-3">
+                        <h3 class="fs-5 fw-bold text-white mb-3">Criar Novo Servidor</h3>
+                        <div class="col-12">
+                            <label for="serverName" class="form-label small text-secondary">Nome do Servidor</label>
+                            <input type="text" id="serverName" required class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label for="serverDescription" class="form-label small text-secondary">Descrição (Opcional)</label>
+                            <textarea id="serverDescription" rows="2" class="form-control"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="defaultChannelName" class="form-label small text-secondary">Nome do Canal Padrão</label>
+                            <input type="text" id="defaultChannelName" required class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">Criar Servidor</button>
+                        </div>
+                    </form>
+
+                    <form id="joinServerForm" class="row g-3 d-none">
+                        <h3 class="fs-5 fw-bold text-white mb-3">Entrar em Servidor Existente</h3>
+                        <div class="col-12">
+                            <label for="serverCode" class="form-label small text-secondary">Código do Servidor</label>
+                            <input type="text" id="serverCode" required class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Explore Servers Modal -->
+    <div class="modal fade" id="exploreServersModal" tabindex="-1" aria-labelledby="exploreServersModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="exploreServersModalLabel">Explorar Servidores Públicos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="exploreServersModalErrorContainer" class="mb-3 d-none"></div>
+                    <div id="publicServerList" class="overflow-auto scrollable-content" style="max-height: 400px;">
+                        <!-- Public servers will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Channel Modal -->
+    <div class="modal fade" id="createChannelModal" tabindex="-1" aria-labelledby="createChannelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="createChannelModalLabel">Criar Novo Canal</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="createChannelModalErrorContainer" class="mb-3 d-none"></div>
+                    <form id="createChannelForm" class="row g-3">
+                        <div class="col-12">
+                            <label for="channelName" class="form-label small text-secondary">Nome do Canal</label>
+                            <input type="text" id="channelName" required class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label for="channelDescription" class="form-label small text-secondary">Descrição (Opcional)</label>
+                            <textarea id="channelDescription" rows="2" class="form-control"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">Criar Canal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Find User / Send Friend Request Modal -->
+    <div class="modal fade" id="findUserModal" tabindex="-1" aria-labelledby="findUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="findUserModalLabel">Encontrar Usuário</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="findUserModalErrorContainer" class="mb-3 d-none"></div>
+                    <form id="findUserForm" class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label for="findNickname" class="form-label small text-secondary">Nickname</label>
+                            <input type="text" id="findNickname" required class="form-control" placeholder="Ex: Usuário">
+                        </div>
+                        <div class="col-12">
+                            <label for="findOrdinal" class="form-label small text-secondary">Ordinal (4 dígitos)</label>
+                            <input type="number" id="findOrdinal" required class="form-control" placeholder="Ex: 0001" min="0" max="9999">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">Buscar Usuário</button>
+                        </div>
+                    </form>
+                    <div id="foundUserResult" class="bg-dark-light p-3 rounded d-none">
+                        <h3 class="fs-5 fw-bold text-white mb-3">Usuário Encontrado:</h3>
+                        <div class="d-flex align-items-center mb-3">
+                            <img id="foundUserProfilePic" src="" alt="Profile" class="profile-pic-small me-3">
+                            <div>
+                                <p id="foundUserNickname" class="text-white fw-semibold mb-0"></p>
+                                <p id="foundUserIdentifier" class="text-secondary small mb-0"></p>
+                                <p id="foundUserStatus" class="text-secondary small mb-0"></p>
+                            </div>
+                        </div>
+                        <form id="sendFriendRequestForm" class="row g-2">
+                            <input type="hidden" id="foundUserId">
+                            <div class="col-12">
+                                <label for="friendRequestMessage" class="form-label small text-secondary">Mensagem (Opcional)</label>
+                                <textarea id="friendRequestMessage" rows="2" class="form-control"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">Enviar Solicitação de Amizade</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Global State Variables
+        let currentUserId = null;
+        let authToken = null;
+        let activeWs = null;
+        let selectedServerId = null;
+        let selectedChannelId = null;
+        let selectedDmConversationId = null;
+        let selectedProfileId = null; // For profile modal
+        let userServers = [];
+        let serverChannels = [];
+        let serverMembers = [];
+        let dmConversations = [];
+        let friendsList = [];
+        let friendRequests = [];
+        let typingUsers = new Map(); // Map<channelId/dmId, Set<userId>>
+        let lastMessageIdInView = null; // For read receipts
+        let oldestMessageIdInView = null; // For loading older messages (pagination)
+        let isLoadingMessages = false; // To prevent multiple loadMoreMessages calls
+
+        // DOM Elements
+        const serverListEl = document.getElementById('serverList');
+        const homeIconEl = document.getElementById('homeIcon');
+        const addServerIconEl = document.getElementById('addServerIcon');
+        const exploreServersIconEl = document.getElementById('exploreServersIcon');
+        const mainSidebarOffcanvas = new bootstrap.Offcanvas(document.getElementById('mainOffcanvas'));
+        const sidebarHeaderEl = document.getElementById('sidebarHeader');
+        const channelsSectionEl = document.getElementById('channelsSection');
+        const channelListEl = document.getElementById('channelList');
+        const memberListEl = document.getElementById('memberList');
+        const createChannelBtn = document.getElementById('createChannelBtn');
+        const homeSectionEl = document.getElementById('homeSection');
+        const dmListEl = document.getElementById('dmList');
+        const friendListEl = document.getElementById('friendList');
+        const friendRequestsListEl = document.getElementById('friendRequestsList');
+        const findUserBtn = document.getElementById('findUserBtn');
+        const chatAreaEl = document.getElementById('chatArea');
+        const chatTitleEl = document.getElementById('chatTitle');
+        const chatDescriptionEl = document.getElementById('chatDescription');
+        const messagesContainerEl = document.getElementById('messagesContainer');
+        const messageFormEl = document.getElementById('messageForm');
+        const messageInputEl = document.getElementById('messageInput');
+        const typingIndicatorsEl = document.getElementById('typingIndicators');
+        const loggedInUserProfileEl = document.getElementById('loggedInUserProfile');
+        const userProfilePicEl = document.getElementById('userProfilePic');
+        const userNicknameEl = document.getElementById('userNickname');
+        const userIdentifierEl = document.getElementById('userIdentifier');
+        const userStatusIndicatorEl = document.getElementById('userStatusIndicator');
+        const userSettingsBtn = document.getElementById('userSettingsBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const notificationContainer = document.getElementById('notificationContainer');
+
+        // Modals (Bootstrap instances)
+        const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+        const userSettingsModal = new bootstrap.Modal(document.getElementById('userSettingsModal'));
+        const addServerModal = new bootstrap.Modal(document.getElementById('addServerModal'));
+        const exploreServersModal = new bootstrap.Modal(document.getElementById('exploreServersModal'));
+        const createChannelModal = new bootstrap.Modal(document.getElementById('createChannelModal'));
+        const findUserModal = new bootstrap.Modal(document.getElementById('findUserModal'));
+
+        // Error Containers for Modals
+        const userSettingsModalErrorContainer = document.getElementById('userSettingsModalErrorContainer');
+        const addServerModalErrorContainer = document.getElementById('addServerModalErrorContainer');
+        const exploreServersModalErrorContainer = document.getElementById('exploreServersModalErrorContainer');
+        const createChannelModalErrorContainer = document.getElementById('createChannelModalErrorContainer');
+        const findUserModalErrorContainer = document.getElementById('findUserModalErrorContainer');
+
+        // --- Utility Functions ---
+        function getAuthToken() {
+            return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        }
+
+        function setAuthToken(token, rememberMe) {
+            if (rememberMe) {
+                localStorage.setItem('authToken', token);
+            } else {
+                sessionStorage.setItem('authToken', token);
+            }
+            authToken = token;
+        }
+
+        function clearAuthToken() {
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken');
+            authToken = null;
+        }
+
+        function displayError(message, containerEl) {
+            if (!containerEl) {
+                console.error("Error container not provided or found.");
+                showNotification('Error: ' + message, 'error'); // Fallback to notification
+                return;
+            }
+            containerEl.innerHTML = `<div class="alert alert-danger animate__animated animate__shakeX" role="alert">${message}</div>`;
+            containerEl.classList.remove('d-none');
+            setTimeout(() => {
+                containerEl.querySelector('.alert').classList.remove('animate__animated', 'animate__shakeX');
+            }, 1000);
+        }
+
+        function clearError(containerEl) {
+            if (containerEl) {
+                containerEl.innerHTML = '';
+                containerEl.classList.add('d-none');
+            }
+        }
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now.getTime() - date.getTime();
+            const oneDay = 1000 * 60 * 60 * 24;
+
+            if (diff < oneDay && date.getDate() === now.getDate()) {
+                return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            } else if (diff < 2 * oneDay && date.getDate() === now.getDate() - 1) {
+                return `Ontem às ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+            } else {
+                return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'online': return 'status-online';
+                case 'offline': return 'status-offline';
+                case 'unavailable': return 'status-unavailable';
+                case 'hibernating': return 'status-hibernating';
+                default: return 'status-offline';
+            }
+        }
+
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = `notification-item animate__animated animate__fadeInRight ${type === 'error' ? 'error' : ''}`;
+            notificationDiv.innerHTML = `
+                <span>${message}</span>
+                <button class="close-btn">&times;</button>
+            `;
+            notificationDiv.querySelector('.close-btn').addEventListener('click', () => {
+                notificationDiv.classList.remove('animate__fadeInRight');
+                notificationDiv.classList.add('animate__fadeOutRight');
+                notificationDiv.addEventListener('animationend', () => notificationDiv.remove());
+            });
+
+            notificationContainer.appendChild(notificationDiv);
+
+            setTimeout(() => {
+                if (notificationDiv.parentNode) { // Check if it hasn't been closed manually
+                    notificationDiv.classList.remove('animate__fadeInRight');
+                    notificationDiv.classList.add('animate__fadeOutRight');
+                    notificationDiv.addEventListener('animationend', () => notificationDiv.remove());
+                }
+            }, duration);
+        }
+
+        // --- Authentication and Initialization Functions ---
+
+        async function verifyTokenAndInitialize() {
+            authToken = getAuthToken();
+            if (!authToken) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/verify-token', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) {
+                    clearAuthToken();
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+                currentUserId = data.userId;
+                await initializeChatApp();
+
+            } catch (error) {
+                console.error('Error verifying token:', error);
+                clearAuthToken();
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch('/api/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+            } catch (error) {
+                console.error('Error logging out on server:', error);
+            } finally {
+                clearAuthToken();
+                if (activeWs) activeWs.close();
+                window.location.href = '/login.html';
+            }
+        }
+
+        async function initializeChatApp() {
+            await fetchCurrentUser();
+            await fetchUserServers();
+            await fetchDmConversations();
+            await fetchFriends();
+            await fetchFriendRequests();
+            connectWebSocket();
+            selectHome(); // Start on DMs/Friends screen
+
+            // Start periodic updates for lists (less frequent than messages)
+            setInterval(pollListUpdates, 10000); // Every 10 seconds
+        }
+
+        async function pollListUpdates() {
+            await fetchDmConversations();
+            await fetchFriends();
+            await fetchFriendRequests();
+            // No need to poll messages here, as they are loaded on selection and on scroll.
+        }
+
+        // --- Data Fetching Functions ---
+
+        async function fetchCurrentUser() {
+            try {
+                const response = await fetch(`/api/user/${currentUserId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load logged-in user profile.');
+                const user = await response.json();
+                userProfilePicEl.src = user.profile_pic ? `/uploads/${user.profile_pic}` : 'https://via.placeholder.com/32?text=U';
+                userNicknameEl.textContent = user.nickname;
+                userIdentifierEl.textContent = user.identifier;
+                userStatusIndicatorEl.className = `status-indicator ${getStatusClass(user.status)}`;
+            } catch (error) {
+                console.error('Error loading current user:', error);
+                showNotification('Could not load your profile.', 'error');
+            }
+        }
+
+        async function fetchUserServers() {
+            try {
+                const response = await fetch(`/api/user/${currentUserId}/servers`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load servers.');
+                userServers = await response.json();
+                renderServerList();
+            } catch (error) {
+                console.error('Error loading user servers:', error);
+                showNotification('Could not load your servers.', 'error');
+            }
+        }
+
+        function renderServerList() {
+            serverListEl.innerHTML = '';
+            userServers.forEach(server => {
+                const serverIcon = document.createElement('div');
+                serverIcon.className = 'sidebar-icon';
+                serverIcon.textContent = server.name.charAt(0).toUpperCase();
+                serverIcon.title = server.name;
+                serverIcon.dataset.serverId = server.id;
+                serverIcon.addEventListener('click', () => selectServer(server.id));
+                serverListEl.appendChild(serverIcon);
+            });
+        }
+
+        async function fetchServerChannels(serverId) {
+            try {
+                const response = await fetch(`/api/servers/${serverId}/channels`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load channels.');
+                serverChannels = await response.json();
+                renderChannelList();
+            } catch (error) {
+                console.error('Error loading server channels:', error);
+                showNotification('Could not load channels for this server.', 'error');
+            }
+        }
+
+        function renderChannelList() {
+            channelListEl.innerHTML = '';
+            serverChannels.forEach(channel => {
+                const channelDiv = document.createElement('a');
+                channelDiv.href = '#';
+                channelDiv.className = 'list-group-item list-group-item-action d-flex align-items-center channel-item';
+                channelDiv.dataset.channelId = channel.id;
+                channelDiv.innerHTML = `
+                    <i class="bi bi-hash me-2"></i>
+                    <span>${channel.name}</span>
+                `;
+                channelDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectChannel(channel.id);
+                });
+                channelListEl.appendChild(channelDiv);
+            });
+        }
+
+        async function fetchServerMembers(serverId) {
+            try {
+                const response = await fetch(`/api/servers/${serverId}/members`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load members.');
+                serverMembers = await response.json();
+                renderMemberList();
+            }
+            catch (error) {
+                console.error('Error loading server members:', error);
+                showNotification('Could not load members for this server.', 'error');
+            }
+        }
+
+        function renderMemberList() {
+            memberListEl.innerHTML = '';
+            serverMembers.forEach(member => {
+                const memberDiv = document.createElement('a');
+                memberDiv.href = '#';
+                memberDiv.className = 'list-group-item list-group-item-action d-flex align-items-center member-item';
+                memberDiv.dataset.userId = member.id;
+                memberDiv.innerHTML = `
+                    <div class="position-relative me-2">
+                        <img src="${member.profile_pic ? `/uploads/${member.profile_pic}` : 'https://via.placeholder.com/32?text=U'}" alt="Profile" class="profile-pic-small">
+                        <div class="status-indicator ${getStatusClass(member.status)}"></div>
+                    </div>
+                    <span>${member.nickname}</span>
+                    <span class="text-secondary small ms-1">#${member.ordinal.toString().padStart(4, '0')}</span>
+                `;
+                memberDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openProfileModal(member.id);
+                });
+                memberListEl.appendChild(memberDiv);
+            });
+        }
+
+        async function fetchDmConversations() {
+            try {
+                const response = await fetch(`/api/user/${currentUserId}/dm-conversations`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load DMs.');
+                dmConversations = await response.json();
+                renderDmList();
+            } catch (error) {
+                console.error('Error loading DM conversations:', error);
+                showNotification('Could not load your direct messages.', 'error');
+            }
+        }
+
+        function renderDmList() {
+            dmListEl.innerHTML = '';
+            if (dmConversations.length === 0) {
+                dmListEl.innerHTML = '<p class="text-secondary small px-2">No direct messages yet.</p>';
+            }
+            dmConversations.forEach(dm => {
+                const dmDiv = document.createElement('a');
+                dmDiv.href = '#';
+                dmDiv.className = 'list-group-item list-group-item-action d-flex align-items-center dm-item';
+                dmDiv.dataset.dmId = dm.id;
+                dmDiv.innerHTML = `
+                    <div class="position-relative me-2">
+                        <img src="${dm.other_user_profile_pic ? `/uploads/${dm.other_user_profile_pic}` : 'https://via.placeholder.com/32?text=U'}" alt="Profile" class="profile-pic-small">
+                        <div class="status-indicator ${getStatusClass(dm.other_user_status)}"></div>
+                    </div>
+                    <div>
+                        <p class="fw-semibold mb-0">${dm.other_user_nickname}</p>
+                        <p class="text-secondary small text-truncate mb-0">${dm.last_message || 'No messages'}</p>
+                    </div>
+                `;
+                dmDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectDmConversation(dm.id);
+                });
+                dmListEl.appendChild(dmDiv);
+            });
+        }
+
+        async function fetchFriends() {
+            try {
+                const response = await fetch(`/api/user/${currentUserId}/friends`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load friends.');
+                friendsList = await response.json();
+                renderFriendList();
+            } catch (error) {
+                console.error('Error loading friends list:', error);
+                showNotification('Could not load your friends list.', 'error');
+            }
+        }
+
+        function renderFriendList() {
+            friendListEl.innerHTML = '';
+            if (friendsList.length === 0) {
+                friendListEl.innerHTML = '<p class="text-secondary small px-2">No friends yet.</p>';
+            }
+            friendsList.forEach(friend => {
+                const friendDiv = document.createElement('a');
+                friendDiv.href = '#';
+                friendDiv.className = 'list-group-item list-group-item-action d-flex align-items-center justify-content-between friend-item';
+                friendDiv.dataset.friendId = friend.id;
+                friendDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative me-2">
+                            <img src="${friend.profile_pic ? `/uploads/${friend.profile_pic}` : 'https://via.placeholder.com/32?text=U'}" alt="Profile" class="profile-pic-small">
+                            <div class="status-indicator ${getStatusClass(friend.status)}"></div>
+                        </div>
+                        <p class="fw-semibold mb-0">${friend.nickname}<span class="text-secondary small ms-1">#${friend.ordinal.toString().padStart(4, '0')}</span></p>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger remove-friend-btn" data-friend-id="${friend.id}">Remover</button>
+                `;
+                friendDiv.querySelector('.remove-friend-btn').addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent opening profile
+                    removeFriend(friend.id);
+                });
+                friendDiv.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openProfileModal(friend.id);
+                });
+                friendListEl.appendChild(friendDiv);
+            });
+        }
+
+        async function fetchFriendRequests() {
+            try {
+                const response = await fetch(`/api/user/${currentUserId}/friend-requests`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load friend requests.');
+                friendRequests = await response.json();
+                renderFriendRequests();
+            } catch (error) {
+                console.error('Error loading friend requests:', error);
+                showNotification('Could not load your friend requests.', 'error');
+            }
+        }
+
+        function renderFriendRequests() {
+            friendRequestsListEl.innerHTML = '';
+            if (friendRequests.length === 0) {
+                friendRequestsListEl.innerHTML = '<p class="text-secondary small px-2">No pending requests.</p>';
+            }
+            friendRequests.forEach(request => {
+                const requestDiv = document.createElement('div');
+                requestDiv.className = 'list-group-item bg-dark-light p-3 rounded mb-2 d-flex align-items-center justify-content-between request-item';
+                requestDiv.dataset.requestId = request.id;
+                requestDiv.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <img src="${request.from_user_profile_pic ? `/uploads/${request.from_user_profile_pic}` : 'https://via.placeholder.com/32?text=U'}" alt="Profile" class="profile-pic-small me-3">
+                        <div>
+                            <p class="fw-semibold text-white mb-0">${request.from_user_nickname}</p>
+                            <p class="text-secondary small mb-0">${request.message || 'Friend request'}</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm accept-request-btn" data-request-id="${request.id}">Accept</button>
+                        <button class="btn btn-danger btn-sm reject-request-btn" data-request-id="${request.id}">Reject</button>
+                    </div>
+                `;
+                requestDiv.querySelector('.accept-request-btn').addEventListener('click', (e) => {
+                    e.target.disabled = true;
+                    e.target.nextElementSibling.disabled = true;
+                    respondToFriendRequest(request.id, 'accept', e.target);
+                });
+                requestDiv.querySelector('.reject-request-btn').addEventListener('click', (e) => {
+                    e.target.disabled = true;
+                    e.target.previousElementSibling.disabled = true;
+                    respondToFriendRequest(request.id, 'reject', e.target);
+                });
+                friendRequestsListEl.appendChild(requestDiv);
+            });
+        }
+
+        async function fetchMessages(type, id, beforeId = null) {
+            if (isLoadingMessages) return;
+            isLoadingMessages = true;
+
+            let url = '';
+            if (type === 'channel') {
+                url = `/api/channels/${id}/messages`;
+            } else if (type === 'dm') {
+                url = `/api/dm-conversations/${id}/messages`;
+            }
+
+            if (beforeId) {
+                url += `?before=${beforeId}`;
+            } else {
+                messagesContainerEl.innerHTML = ''; // Clear messages only on initial load
+                typingUsers.clear();
+                updateTypingIndicators();
+                lastMessageIdInView = null;
+                oldestMessageIdInView = null;
+            }
+
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load messages.');
+                const messages = await response.json();
+
+                // Add messages to the top (for reverse order display)
+                const fragment = document.createDocumentFragment();
+                messages.reverse().forEach(msg => { // Reverse to add oldest first
+                    if (!messagesContainerEl.querySelector(`[data-message-id="${msg.id}"]`)) {
+                        fragment.appendChild(createMessageElement(msg));
+                    }
+                });
+                messagesContainerEl.appendChild(fragment); // Append all at once
+
+                if (messages.length > 0) {
+                    // Update lastMessageIdInView with the newest message ID
+                    if (!lastMessageIdInView) { // Only set on initial load
+                        lastMessageIdInView = messages[messages.length - 1].id;
+                    }
+                    // Update oldestMessageIdInView with the oldest message ID loaded
+                    oldestMessageIdInView = messages[0].id;
+
+                    // Scroll to bottom only on initial load
+                    if (!beforeId) {
+                        messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
+                    }
+                    sendReadReceipt(selectedChannelId, selectedDmConversationId, lastMessageIdInView);
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            } finally {
+                isLoadingMessages = false;
+            }
+        }
+
+        function loadMoreMessages() {
+            if (messagesContainerEl.scrollTop === 0 && !isLoadingMessages && oldestMessageIdInView) {
+                if (selectedChannelId) {
+                    fetchMessages('channel', selectedChannelId, oldestMessageIdInView);
+                } else if (selectedDmConversationId) {
+                    fetchMessages('dm', selectedDmConversationId, oldestMessageIdInView);
+                }
+            }
+        }
+
+        // --- Content Selection Functions ---
+
+        function resetSidebarSelection() {
+            document.querySelectorAll('.sidebar-icon').forEach(icon => icon.classList.remove('active'));
+            document.querySelectorAll('.channel-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.dm-item').forEach(item => item.classList.remove('active'));
+        }
+
+        function selectHome() {
+            resetSidebarSelection();
+            homeIconEl.classList.add('active');
+
+            selectedServerId = null;
+            selectedChannelId = null;
+            selectedDmConversationId = null;
+            lastMessageIdInView = null;
+            oldestMessageIdInView = null;
+
+            sidebarHeaderEl.textContent = 'Direct Messages';
+            channelsSectionEl.classList.add('d-none');
+            homeSectionEl.classList.remove('d-none');
+            chatTitleEl.textContent = 'Welcome to ITF!';
+            chatDescriptionEl.textContent = 'Select a conversation or friend to start chatting.';
+            messagesContainerEl.innerHTML = '';
+            messageInputEl.disabled = true;
+            messageInputEl.placeholder = 'Select a conversation to send message...';
+            typingIndicatorsEl.innerHTML = '';
+            typingUsers.clear();
+
+            mainSidebarOffcanvas.show(); // Show main sidebar on mobile
+        }
+
+        async function selectServer(serverId) {
+            resetSidebarSelection();
+            document.querySelector(`.sidebar-icon[data-server-id="${serverId}"]`).classList.add('active');
+
+            selectedServerId = serverId;
+            selectedDmConversationId = null;
+            lastMessageIdInView = null;
+            oldestMessageIdInView = null;
+
+            homeSectionEl.classList.add('d-none');
+            channelsSectionEl.classList.remove('d-none');
+
+            const server = userServers.find(s => s.id === serverId);
+            sidebarHeaderEl.textContent = server ? server.name : 'Server';
+
+            await fetchServerChannels(serverId);
+            await fetchServerMembers(serverId);
+
+            let defaultChannelId = null;
+            try {
+                const settingsResponse = await fetch(`/api/servers/${serverId}/settings`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (settingsResponse.ok) {
+                    const settings = await settingsResponse.json();
+                    defaultChannelId = settings.default_channel_id;
+                }
+            } catch (error) {
+                console.error('Error loading server settings for default channel:', error);
+            }
+
+            const defaultChannel = serverChannels.find(c => c.id === defaultChannelId) || serverChannels[0];
+            if (defaultChannel) {
+                selectChannel(defaultChannel.id);
+            } else {
+                chatTitleEl.textContent = 'No channels available';
+                chatDescriptionEl.textContent = '';
+                messagesContainerEl.innerHTML = '';
+                messageInputEl.disabled = true;
+                messageInputEl.placeholder = 'Create a channel to send messages...';
+                typingIndicatorsEl.innerHTML = '';
+                typingUsers.clear();
+            }
+            mainSidebarOffcanvas.show(); // Show main sidebar on mobile
+        }
+
+        async function selectChannel(channelId) {
+            document.querySelectorAll('.channel-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`.channel-item[data-channel-id="${channelId}"]`).classList.add('active');
+
+            selectedChannelId = channelId;
+            selectedDmConversationId = null;
+            lastMessageIdInView = null;
+            oldestMessageIdInView = null;
+
+            const channel = serverChannels.find(c => c.id === channelId);
+            chatTitleEl.textContent = `# ${channel ? channel.name : 'Channel'}`;
+            chatDescriptionEl.textContent = channel ? channel.description : '';
+            messageInputEl.disabled = false;
+            messageInputEl.placeholder = `Message in #${channel ? channel.name : 'Channel'}`;
+
+            await fetchMessages('channel', channelId);
+            mainSidebarOffcanvas.hide(); // Hide main sidebar on mobile after selection
+        }
+
+        async function selectDmConversation(dmId) {
+            document.querySelectorAll('.dm-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`.dm-item[data-dm-id="${dmId}"]`).classList.add('active');
+
+            selectedDmConversationId = dmId;
+            selectedChannelId = null;
+            selectedServerId = null;
+            lastMessageIdInView = null;
+            oldestMessageIdInView = null;
+
+            homeSectionEl.classList.remove('d-none');
+            channelsSectionEl.classList.add('d-none');
+
+            const dm = dmConversations.find(d => d.id === dmId);
+            chatTitleEl.textContent = `@ ${dm ? dm.other_user_nickname : 'DM'}`;
+            chatDescriptionEl.textContent = '';
+            messageInputEl.disabled = false;
+            messageInputEl.placeholder = `Message to @${dm ? dm.other_user_nickname : 'DM'}`;
+
+            await fetchMessages('dm', dmId);
+            mainSidebarOffcanvas.hide(); // Hide main sidebar on mobile after selection
+        }
+
+        // --- Messaging and WebSocket Functions ---
+
+        function connectWebSocket() {
+            if (activeWs && activeWs.readyState === WebSocket.OPEN) {
+                activeWs.close();
+            }
+
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            activeWs = new WebSocket(`${wsProtocol}//${window.location.host}?token=${authToken}`);
+
+            activeWs.onopen = () => {
+                console.log('WebSocket connected.');
+                showNotification('Connected to real-time chat.', 'info');
+            };
+
+            activeWs.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('WebSocket message received:', data);
+                switch (data.type) {
+                    case 'message':
+                        handleIncomingMessage(data.message);
+                        break;
+                    case 'typing':
+                        handleIncomingTyping(data);
+                        break;
+                    case 'user_status':
+                        handleIncomingUserStatus(data);
+                        break;
+                    // Add other WebSocket event types here
+                }
+            };
+
+            activeWs.onclose = (event) => {
+                console.log('WebSocket disconnected:', event.code, event.reason);
+                showNotification('Disconnected from real-time chat. Attempting to reconnect...', 'error');
+                if (event.code !== 1000 && event.code !== 1008) {
+                    setTimeout(connectWebSocket, 5000);
+                }
+            };
+
+            activeWs.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                showNotification('WebSocket connection error.', 'error');
+            };
+        }
+
+        function sendMessage(content, replyTo = null) {
+            if (!activeWs || activeWs.readyState !== WebSocket.OPEN) {
+                showNotification('Chat connection not established. Try reloading the page.', 'error');
+                return;
+            }
+
+            const messageData = {
+                type: 'message',
+                content: content,
+                replyTo: replyTo
+            };
+
+            if (selectedChannelId) {
+                messageData.channelId = selectedChannelId;
+            } else if (selectedDmConversationId) {
+                messageData.dmConversationId = selectedDmConversationId;
+            } else {
+                showNotification('No channel or DM conversation selected.', 'error');
+                return;
+            }
+
+            activeWs.send(JSON.stringify(messageData));
+            messageInputEl.value = '';
+            sendTypingIndicator(false);
+        }
+
+        function handleIncomingMessage(message) {
+            const isCurrentChannel = selectedChannelId && message.channel_id === selectedChannelId;
+            const isCurrentDm = selectedDmConversationId && message.dm_conversation_id === selectedDmConversationId;
+
+            if (isCurrentChannel || isCurrentDm) {
+                // Add message to the bottom (for normal display order)
+                messagesContainerEl.prepend(createMessageElement(message));
+                messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
+                lastMessageIdInView = message.id;
+                sendReadReceipt(message.channel_id, message.dm_conversation_id, message.id);
+            }
+
+            if (message.dm_conversation_id) {
+                const dmItem = dmConversations.find(dm => dm.id === message.dm_conversation_id);
+                if (dmItem) {
+                    dmItem.last_message = message.content;
+                    dmItem.last_message_time = message.created_at;
+                    renderDmList();
+                }
+            }
+        }
+
+        function createMessageElement(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'd-flex align-items-start mb-3';
+            messageDiv.dataset.messageId = message.id;
+
+            const profilePicSrc = message.profile_pic ? `/uploads/${message.profile_pic}` : 'https://via.placeholder.com/32?text=U';
+            const statusClass = getStatusClass(message.status);
+
+            messageDiv.innerHTML = `
+                <div class="position-relative me-3">
+                    <img src="${profilePicSrc}" alt="Profile" class="profile-pic-small cursor-pointer" data-user-id="${message.user_id}">
+                    <div class="status-indicator ${statusClass}"></div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-baseline mb-1">
+                        <span class="fw-semibold text-white me-2 cursor-pointer" data-user-id="${message.user_id}">${message.nickname}</span>
+                        <span class="text-secondary small">${message.userIdentifier}</span>
+                        <span class="text-secondary small ms-auto">${formatTimestamp(message.created_at)}</span>
+                    </div>
+                    <div class="message-content text-light">${message.content}</div>
+                </div>
+            `;
+            messageDiv.querySelector('img').addEventListener('click', (e) => openProfileModal(e.target.dataset.userId));
+            messageDiv.querySelector('.fw-semibold').addEventListener('click', (e) => openProfileModal(e.target.dataset.userId));
+            return messageDiv;
+        }
+
+        function sendTypingIndicator(isTyping) {
+            if (!activeWs || activeWs.readyState !== WebSocket.OPEN) return;
+
+            const typingData = {
+                type: 'typing',
+                isTyping: isTyping
+            };
+
+            if (selectedChannelId) {
+                typingData.channelId = selectedChannelId;
+            } else if (selectedDmConversationId) {
+                typingData.dmConversationId = selectedDmConversationId;
+            } else {
+                return;
+            }
+            activeWs.send(JSON.stringify(typingData));
+        }
+
+        function handleIncomingTyping(data) {
+            const targetId = data.channelId || data.dmConversationId;
+            if (!targetId) return;
+
+            let usersInTarget = typingUsers.get(targetId);
+            if (!usersInTarget) {
+                usersInTarget = new Set();
+                typingUsers.set(targetId, usersInTarget);
+            }
+
+            if (data.isTyping && data.userId !== currentUserId) {
+                usersInTarget.add(data.userId);
+            } else {
+                usersInTarget.delete(data.userId);
+            }
+            updateTypingIndicators();
+        }
+
+        function updateTypingIndicators() {
+            let usersTyping = [];
+            if (selectedChannelId) {
+                usersTyping = Array.from(typingUsers.get(selectedChannelId) || []);
+            } else if (selectedDmConversationId) {
+                usersTyping = Array.from(typingUsers.get(selectedDmConversationId) || []);
+            }
+
+            if (usersTyping.length === 0) {
+                typingIndicatorsEl.textContent = '';
+                return;
+            }
+
+            const typingUserNicknames = usersTyping.map(userId => {
+                const user = serverMembers.find(m => m.id === userId) || friendsList.find(f => f.id === userId);
+                return user ? user.nickname : `User ${userId}`;
+            });
+
+            if (typingUserNicknames.length === 1) {
+                typingIndicatorsEl.textContent = `${typingUserNicknames[0]} is typing...`;
+            } else if (typingUserNicknames.length > 1) {
+                typingIndicatorsEl.textContent = `${typingUserNicknames.join(', ')} are typing...`;
+            }
+        }
+
+        function sendReadReceipt(channelId, dmConversationId, lastMessageId) {
+            if (!activeWs || activeWs.readyState !== WebSocket.OPEN || !lastMessageId) return;
+            activeWs.send(JSON.stringify({
+                type: 'read',
+                channelId: channelId,
+                dmConversationId: dmConversationId,
+                lastMessageId: parseInt(lastMessageId)
+            }));
+        }
+
+        function handleIncomingUserStatus(data) {
+            const updateStatus = (selector, userId, status) => {
+                const el = document.querySelector(`${selector}[data-user-id="${userId}"] .status-indicator`);
+                if (el) {
+                    el.className = `status-indicator ${getStatusClass(status)}`;
+                }
+            };
+
+            updateStatus('#memberList .member-item', data.userId, data.status);
+            updateStatus('#friendList .friend-item', data.userId, data.status);
+
+            const dmToUpdate = dmConversations.find(dm => dm.other_user_id === data.userId);
+            if (dmToUpdate) {
+                const dmItemEl = dmListEl.querySelector(`[data-dm-id="${dmToUpdate.id}"] .status-indicator`);
+                if (dmItemEl) {
+                    dmItemEl.className = `status-indicator ${getStatusClass(data.status)}`;
+                }
+            }
+
+            if (data.userId === currentUserId) {
+                userStatusIndicatorEl.className = `status-indicator ${getStatusClass(data.status)}`;
+            }
+
+            if (profileModal._isShown && selectedProfileId === data.userId) {
+                document.getElementById('modalStatus').textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                document.getElementById('modalStatus').className = `small fw-semibold mb-3 text-${getStatusClass(data.status).replace('status-', '')}`;
+            }
+        }
+
+        // --- Modal Functions ---
+
+        async function openProfileModal(userId) {
+            selectedProfileId = parseInt(userId);
+            try {
+                const response = await fetch(`/api/user/${selectedProfileId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load profile.');
+                const user = await response.json();
+
+                document.getElementById('modalProfilePic').src = user.profile_pic ? `/uploads/${user.profile_pic}` : 'https://via.placeholder.com/128?text=U';
+                document.getElementById('modalBanner').src = user.banner ? `/uploads/${user.banner}` : 'https://via.placeholder.com/600x200?text=Banner';
+                document.getElementById('modalNickname').textContent = user.nickname;
+                document.getElementById('modalIdentifier').textContent = user.identifier;
+                document.getElementById('modalStatus').textContent = user.status.charAt(0).toUpperCase() + user.status.slice(1);
+                document.getElementById('modalStatus').className = `small fw-semibold mb-3 text-${getStatusClass(user.status).replace('status-', '')}`;
+                document.getElementById('modalPronouns').textContent = user.pronouns ? `Pronouns: ${user.pronouns}` : '';
+                document.getElementById('modalDescription').textContent = user.description || 'No description.';
+                document.getElementById('modalCreatedAt').textContent = new Date(user.created_at).toLocaleDateString('pt-BR');
+                document.getElementById('modalAccountAge').textContent = user.account_age;
+                document.getElementById('modalFriendCount').textContent = user.friend_count;
+                document.getElementById('modalServerCount').textContent = user.server_count;
+
+                const addFriendBtn = document.getElementById('addFriendBtn');
+                const startDmBtn = document.getElementById('startDmBtn');
+                const removeFriendBtn = document.getElementById('removeFriendBtn');
+
+                addFriendBtn.classList.add('d-none');
+                startDmBtn.classList.add('d-none');
+                removeFriendBtn.classList.add('d-none');
+
+                if (selectedProfileId !== currentUserId) {
+                    const isFriend = friendsList.some(f => f.id === selectedProfileId);
+                    const hasPendingRequest = friendRequests.some(r =>
+                        (r.from_user_id === selectedProfileId && r.to_user_id === currentUserId && r.status === 'pending') ||
+                        (r.from_user_id === currentUserId && r.to_user_id === selectedProfileId && r.status === 'pending')
+                    );
+
+                    if (isFriend) {
+                        startDmBtn.classList.remove('d-none');
+                        removeFriendBtn.classList.remove('d-none');
+                        startDmBtn.onclick = () => startDmConversation(selectedProfileId);
+                        removeFriendBtn.onclick = () => removeFriend(selectedProfileId);
+                    } else if (!hasPendingRequest) {
+                        addFriendBtn.classList.remove('d-none');
+                        addFriendBtn.onclick = () => sendFriendRequest(selectedProfileId);
+                    }
+                }
+
+                profileModal.show();
+            } catch (error) {
+                console.error('Error opening profile modal:', error);
+                showNotification('Could not load user profile.', 'error');
+            }
+        }
+
+        async function openUserSettingsModal() {
+            clearError(userSettingsModalErrorContainer);
+            try {
+                const [userResponse, settingsResponse] = await Promise.all([
+                    fetch(`/api/user/${currentUserId}`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+                    fetch(`/api/user/${currentUserId}/settings`, { headers: { 'Authorization': `Bearer ${authToken}` } })
+                ]);
+
+                if (!userResponse.ok) throw new Error('Failed to load user data for editing.');
+                if (!settingsResponse.ok) throw new Error('Failed to load user settings.');
+
+                const userData = await userResponse.json();
+                const settings = await settingsResponse.json();
+
+                document.getElementById('editPronouns').value = userData.pronouns || '';
+                document.getElementById('editDescription').value = userData.description || '';
+                document.getElementById('editStatus').value = userData.status || 'online';
+
+                document.getElementById('editNotificationsEnabled').checked = settings.notifications_enabled;
+                document.getElementById('editShowOnlineStatus').checked = settings.show_online_status;
+                document.getElementById('editAllowFriendRequests').checked = settings.allow_friend_requests;
+                document.getElementById('editAllowDMs').checked = settings.allow_dms;
+
+                userSettingsModal.show();
+            } catch (error) {
+                console.error('Error opening user settings modal:', error);
+                displayError(error.message, userSettingsModalErrorContainer);
+            }
+        }
+
+        async function saveUserSettings(e) {
+            e.preventDefault();
+            clearError(userSettingsModalErrorContainer);
+
+            const formData = new FormData();
+            formData.append('pronouns', document.getElementById('editPronouns').value);
+            formData.append('description', document.getElementById('editDescription').value);
+            formData.append('status', document.getElementById('editStatus').value);
+
+            const profilePicFile = document.getElementById('editProfilePic').files[0];
+            if (profilePicFile) formData.append('profile_pic', profilePicFile);
+
+            const bannerFile = document.getElementById('editBanner').files[0];
+            if (bannerFile) formData.append('banner', bannerFile);
+
+            const settingsData = {
+                theme: 'dark',
+                notifications_enabled: document.getElementById('editNotificationsEnabled').checked,
+                privacy_profile: 'public',
+                show_online_status: document.getElementById('editShowOnlineStatus').checked,
+                allow_friend_requests: document.getElementById('editAllowFriendRequests').checked,
+                allow_dms: document.getElementById('editAllowDMs').checked
+            };
+
+            try {
+                const userUpdateResponse = await fetch(`/api/user/${currentUserId}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData
+                });
+
+                if (!userUpdateResponse.ok) {
+                    const errorData = await userUpdateResponse.json();
+                    throw new Error(errorData.error || 'Failed to update profile data.');
+                }
+
+                const settingsUpdateResponse = await fetch(`/api/user/${currentUserId}/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(settingsData)
+                });
+
+                if (!settingsUpdateResponse.ok) {
+                    const errorData = await settingsUpdateResponse.json();
+                    throw new Error(errorData.error || 'Failed to update privacy settings.');
+                }
+
+                showNotification('Settings saved successfully!', 'info');
+                userSettingsModal.hide();
+                await fetchCurrentUser();
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                displayError(error.message, userSettingsModalErrorContainer);
+            }
+        }
+
+        function openAddServerModal() {
+            addServerModal.show();
+            document.getElementById('createServerForm').classList.remove('d-none');
+            document.getElementById('joinServerForm').classList.add('d-none');
+            clearError(addServerModalErrorContainer);
+        }
+
+        async function createServer(e) {
+            e.preventDefault();
+            clearError(addServerModalErrorContainer);
+
+            const name = document.getElementById('serverName').value;
+            const description = document.getElementById('serverDescription').value;
+            const channelName = document.getElementById('defaultChannelName').value;
+            const isPublic = true;
+
+            try {
+                const response = await fetch('/api/servers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ name, description, isPublic, channelName })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create server.');
+                }
+
+                showNotification('Server created successfully!', 'info');
+                addServerModal.hide();
+                await fetchUserServers();
+            } catch (error) {
+                console.error('Error creating server:', error);
+                displayError(error.message, addServerModalErrorContainer);
+            }
+        }
+
+        async function joinServer(e) {
+            e.preventDefault();
+            clearError(addServerModalErrorContainer);
+
+            const code = document.getElementById('serverCode').value;
+
+            try {
+                const response = await fetch('/api/servers/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ code })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to join server.');
+                }
+
+                showNotification('Joined server successfully!', 'info');
+                addServerModal.hide();
+                await fetchUserServers();
+            } catch (error) {
+                console.error('Error joining server:', error);
+                displayError(error.message, addServerModalErrorContainer);
+            }
+        }
+
+        async function openExploreServersModal() {
+            exploreServersModal.show();
+            const publicServerListEl = document.getElementById('publicServerList');
+            publicServerListEl.innerHTML = '<p class="text-secondary text-center">Loading servers...</p>';
+            clearError(exploreServersModalErrorContainer);
+
+            try {
+                const response = await fetch('/api/servers/public', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Failed to load public servers.');
+                const publicServers = await response.json();
+
+                publicServerListEl.innerHTML = '';
+                if (publicServers.length === 0) {
+                    publicServerListEl.innerHTML = '<p class="text-secondary text-center">No public servers found.</p>';
+                    return;
+                }
+
+                publicServers.forEach(server => {
+                    const serverDiv = document.createElement('div');
+                    serverDiv.className = 'bg-dark p-3 rounded mb-3 d-flex justify-content-between align-items-center';
+                    serverDiv.innerHTML = `
+                        <div>
+                            <h3 class="fs-5 fw-bold text-white">${server.name}</h3>
+                            <p class="text-secondary small mb-1">${server.description || 'No description'}</p>
+                            <p class="text-secondary small mb-0">Owner: ${server.owner_name} | Members: ${server.member_count}</p>
+                            <p class="text-secondary small mb-0">Code: ${server.code}</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm join-public-server-btn" data-server-code="${server.code}">Join</button>
+                    `;
+                    serverDiv.querySelector('.join-public-server-btn').addEventListener('click', async (e) => {
+                        const code = e.target.dataset.serverCode;
+                        try {
+                            const joinResponse = await fetch('/api/servers/join', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${authToken}`
+                                },
+                                body: JSON.stringify({ code })
+                            });
+
+                            if (!joinResponse.ok) {
+                                const errorData = await joinResponse.json();
+                                throw new Error(errorData.error || 'Failed to join server.');
+                            }
+                            showNotification('Joined server successfully!', 'info');
+                            exploreServersModal.hide();
+                            await fetchUserServers();
+                        } catch (joinError) {
+                            showNotification('Error joining server: ' + joinError.message, 'error');
+                        }
+                    });
+                    publicServerListEl.appendChild(serverDiv);
+                });
+
+            } catch (error) {
+                console.error('Error exploring servers:', error);
+                displayError(error.message, exploreServersModalErrorContainer);
+            }
+        }
+
+        function openCreateChannelModal() {
+            if (!selectedServerId) {
+                showNotification('Select a server first to create a channel.', 'error');
+                return;
+            }
+            createChannelModal.show();
+            clearError(createChannelModalErrorContainer);
+        }
+
+        async function createChannel(e) {
+            e.preventDefault();
+            clearError(createChannelModalErrorContainer);
+
+            const name = document.getElementById('channelName').value;
+            const description = document.getElementById('channelDescription').value;
+            const isPrivate = false;
+
+            try {
+                const response = await fetch(`/api/servers/${selectedServerId}/channels`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ name, description, isPrivate })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create channel.');
+                }
+
+                showNotification('Channel created successfully!', 'info');
+                createChannelModal.hide();
+                await fetchServerChannels(selectedServerId);
+            } catch (error) {
+                console.error('Error creating channel:', error);
+                displayError(error.message, createChannelModalErrorContainer);
+            }
+        }
+
+        function openFindUserModal() {
+            findUserModal.show();
+            document.getElementById('foundUserResult').classList.add('d-none');
+            document.getElementById('findUserForm').reset();
+            clearError(findUserModalErrorContainer);
+        }
+
+        async function findUserByIdentifier(e) {
+            e.preventDefault();
+            clearError(findUserModalErrorContainer);
+
+            const nickname = document.getElementById('findNickname').value;
+            const ordinal = parseInt(document.getElementById('findOrdinal').value);
+
+            if (!nickname || isNaN(ordinal)) {
+                displayError('Nickname and Ordinal (number) are required.', findUserModalErrorContainer);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/users/find', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ nickname, ordinal })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'User not found.');
+                }
+
+                const user = await response.json();
+                document.getElementById('foundUserId').value = user.id;
+                document.getElementById('foundUserProfilePic').src = user.profile_pic ? `/uploads/${user.profile_pic}` : 'https://via.placeholder.com/32?text=U';
+                document.getElementById('foundUserNickname').textContent = user.nickname;
+                document.getElementById('foundUserIdentifier').textContent = `${user.nickname}-itl${user.ordinal.toString().padStart(4, '0')}`;
+                document.getElementById('foundUserStatus').textContent = `Status: ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}`;
+                document.getElementById('foundUserResult').classList.remove('d-none');
+                document.getElementById('sendFriendRequestForm').reset();
+
+                const sendFriendRequestForm = document.getElementById('sendFriendRequestForm');
+                if (user.id === currentUserId || friendsList.some(f => f.id === user.id)) {
+                    sendFriendRequestForm.classList.add('d-none');
+                } else {
+                    sendFriendRequestForm.classList.remove('d-none');
+                }
+
+            } catch (error) {
+                console.error('Error finding user:', error);
+                displayError(error.message, findUserModalErrorContainer);
+                document.getElementById('foundUserResult').classList.add('d-none');
+            }
+        }
+
+        async function sendFriendRequest(toUserId) {
+            const message = document.getElementById('friendRequestMessage').value;
+            try {
+                const response = await fetch('/api/friend-requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ toUserId, message })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to send friend request.');
+                }
+
+                showNotification('Friend request sent!', 'info');
+                findUserModal.hide();
+                await fetchFriendRequests();
+            } catch (error) {
+                console.error('Error sending friend request:', error);
+                displayError(error.message, findUserModalErrorContainer);
+            }
+        }
+
+        async function respondToFriendRequest(requestId, action, buttonEl) {
+            if (buttonEl) {
+                buttonEl.disabled = true;
+                const parentDiv = buttonEl.closest('.request-item');
+                if (parentDiv) {
+                    parentDiv.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                }
+            }
+
+            try {
+                const response = await fetch(`/api/friend-requests/${requestId}/${action}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Failed to ${action === 'accept' ? 'accept' : 'reject'} request.`);
+                }
+
+                showNotification(`Request ${action === 'accept' ? 'accepted' : 'rejected'} successfully!`, 'info');
+                const requestItemEl = document.querySelector(`.request-item[data-request-id="${requestId}"]`);
+                if (requestItemEl) {
+                    requestItemEl.remove();
+                }
+
+                await fetchFriendRequests();
+                if (action === 'accept') {
+                    await fetchFriends();
+                    await fetchDmConversations();
+                }
+            } catch (error) {
+                console.error('Error responding to request:', error);
+                showNotification(error.message, 'error');
+                if (buttonEl) {
+                    const parentDiv = buttonEl.closest('.request-item');
+                    if (parentDiv) {
+                        parentDiv.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    }
+                }
+                await fetchFriendRequests();
+            }
+        }
+
+        async function removeFriend(friendId) {
+            if (!confirm('Are you sure you want to remove this friend?')) return;
+            try {
+                const response = await fetch(`/api/friends/${friendId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to remove friend.');
+                }
+
+                showNotification('Friend removed successfully!', 'info');
+                profileModal.hide();
+                await fetchFriends();
+                await fetchDmConversations();
+            } catch (error) {
+                console.error('Error removing friend:', error);
+                showNotification(error.message, 'error');
+            }
+        }
+
+        async function startDmConversation(friendId) {
+            try {
+                const response = await fetch('/api/dm-conversations/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ friendId })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to start DM conversation.');
+                }
+
+                const data = await response.json();
+                profileModal.hide();
+                await fetchDmConversations();
+                selectDmConversation(data.id);
+            } catch (error) {
+                console.error('Error starting DM:', error);
+                showNotification(error.message, 'error');
+            }
+        }
+
+        // --- Event Listeners ---
+
+        homeIconEl.addEventListener('click', selectHome);
+        addServerIconEl.addEventListener('click', openAddServerModal);
+        exploreServersIconEl.addEventListener('click', openExploreServersModal);
+        createChannelBtn.addEventListener('click', openCreateChannelModal);
+        findUserBtn.addEventListener('click', openFindUserModal);
+        userSettingsBtn.addEventListener('click', openUserSettingsModal);
+        logoutBtn.addEventListener('click', handleLogout);
+
+        messageFormEl.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = messageInputEl.value.trim();
+            if (content) {
+                sendMessage(content);
+            }
+        });
+
+        let typingTimeout;
+        messageInputEl.addEventListener('input', () => {
+            sendTypingIndicator(true);
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                sendTypingIndicator(false);
+            }, 3000); // Stop typing after 3 seconds of inactivity
+        });
+
+        messagesContainerEl.addEventListener('scroll', loadMoreMessages);
+
+        // Modal form submissions
+        document.getElementById('userSettingsForm').addEventListener('submit', saveUserSettings);
+        document.getElementById('createServerForm').addEventListener('submit', createServer);
+        document.getElementById('joinServerForm').addEventListener('submit', joinServer);
+        document.getElementById('createChannelForm').addEventListener('submit', createChannel);
+        document.getElementById('findUserForm').addEventListener('submit', findUserByIdentifier);
+        document.getElementById('sendFriendRequestForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const foundUserId = document.getElementById('foundUserId').value;
+            sendFriendRequest(parseInt(foundUserId));
+        });
+
+        // Toggle between create/join server forms
+        document.getElementById('showCreateServerFormBtn').addEventListener('click', () => {
+            document.getElementById('createServerForm').classList.remove('d-none');
+            document.getElementById('joinServerForm').classList.add('d-none');
+            clearError(addServerModalErrorContainer);
+        });
+        document.getElementById('showJoinServerFormBtn').addEventListener('click', () => {
+            document.getElementById('createServerForm').classList.add('d-none');
+            document.getElementById('joinServerForm').classList.remove('d-none');
+            clearError(addServerModalErrorContainer);
+        });
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', verifyTokenAndInitialize);
+    </script>
+</body>
+</html>
+

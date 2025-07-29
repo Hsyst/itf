@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITF - Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .card-glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .input-field {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.6);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .error-message {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+        .password-strength {
+            height: 4px;
+            transition: all 0.3s ease;
+        }
+        .password-strength.weak {
+            background-color: #ef4444;
+            width: 25%;
+        }
+        .password-strength.medium {
+            background-color: #f59e0b;
+            width: 50%;
+        }
+        .password-strength.strong {
+            background-color: #10b981;
+            width: 75%;
+        }
+        .password-strength.very-strong {
+            background-color: #3b82f6;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="card-glass rounded-xl shadow-2xl overflow-hidden w-full max-w-md animate__animated animate__fadeIn">
+        <div class="p-8">
+            <div class="flex justify-center mb-8">
+                <div class="bg-indigo-600 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold text-center text-white mb-2">Crie sua conta</h1>
+            <p class="text-gray-400 text-center mb-8">Junte-se à nossa comunidade</p>
+            
+            <form id="registerForm" class="space-y-6">
+                <div id="errorContainer" class="hidden">
+                    <div class="error-message bg-red-900/50 text-red-200 px-4 py-3 rounded-lg text-sm">
+                        <span id="errorText"></span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="email" name="email" required 
+                           class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="nickname" class="block text-sm font-medium text-gray-300 mb-2">Nickname</label>
+                    <input type="text" id="nickname" name="nickname" required 
+                           class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <p class="mt-1 text-xs text-gray-400">Seu nome de usuário único na plataforma</p>
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Senha</label>
+                    <input type="password" id="password" name="password" required 
+                           class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                           oninput="checkPasswordStrength(this.value)">
+                    <div class="mt-2 flex space-x-1">
+                        <div id="passwordStrength" class="password-strength rounded-full"></div>
+                    </div>
+                    <p id="passwordStrengthText" class="mt-1 text-xs text-gray-400"></p>
+                </div>
+                
+                <div>
+                    <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-2">Confirmar Senha</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required 
+                           class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+
+                
+                <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg font-medium text-white">
+                    <span id="registerBtnText">Registrar</span>
+                    <span id="registerSpinner" class="hidden ml-2">
+                        <svg class="animate-spin h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">Já tem uma conta? <a href="login.html" class="text-indigo-400 hover:text-indigo-300 font-medium">Faça login</a></p>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('passwordStrengthText');
+            
+            // Reset classes
+            strengthBar.className = 'password-strength rounded-full';
+            
+            if (!password) {
+                strengthText.textContent = '';
+                return;
+            }
+            
+            // Calculate strength
+            let strength = 0;
+            
+            // Length
+            if (password.length > 7) strength++;
+            if (password.length > 11) strength++;
+            
+            // Contains numbers
+            if (/\d/.test(password)) strength++;
+            
+            // Contains special chars
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            
+            // Contains both lower and upper case
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            
+            // Update UI
+            let strengthLevel = '';
+            if (strength <= 2) {
+                strengthLevel = 'weak';
+                strengthText.textContent = 'Senha fraca';
+                strengthText.className = 'mt-1 text-xs text-red-400';
+            } else if (strength === 3) {
+                strengthLevel = 'medium';
+                strengthText.textContent = 'Senha média';
+                strengthText.className = 'mt-1 text-xs text-yellow-400';
+            } else if (strength === 4) {
+                strengthLevel = 'strong';
+                strengthText.textContent = 'Senha forte';
+                strengthText.className = 'mt-1 text-xs text-green-400';
+            } else {
+                strengthLevel = 'very-strong';
+                strengthText.textContent = 'Senha muito forte';
+                strengthText.className = 'mt-1 text-xs text-blue-400';
+            }
+            
+            strengthBar.classList.add(strengthLevel);
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const nickname = document.getElementById('nickname').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            const registerBtnText = document.getElementById('registerBtnText');
+            const registerSpinner = document.getElementById('registerSpinner');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorText = document.getElementById('errorText');
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                errorText.textContent = 'As senhas não coincidem';
+                errorContainer.classList.remove('hidden');
+                return;
+            }
+            
+            // Show loading state
+            registerBtnText.textContent = 'Registrando...';
+            registerSpinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        nickname
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao registrar');
+                }
+                
+                // Registration successful - redirect to login
+                window.location.href = 'login.html?registered=true';
+                
+            } catch (error) {
+                // Show error message
+                errorText.textContent = error.message;
+                errorContainer.classList.remove('hidden');
+                
+                // Shake animation for error
+                errorContainer.querySelector('.error-message').classList.add('animate__animated', 'animate__shakeX');
+                setTimeout(() => {
+                    errorContainer.querySelector('.error-message').classList.remove('animate__animated', 'animate__shakeX');
+                }, 1000);
+                
+                console.error('Registration error:', error);
+            } finally {
+                // Reset button state
+                registerBtnText.textContent = 'Registrar';
+                registerSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

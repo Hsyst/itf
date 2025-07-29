@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITF - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .card-glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .input-field {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.6);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .error-message {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="card-glass rounded-xl shadow-2xl overflow-hidden w-full max-w-md animate__animated animate__fadeIn">
+        <div class="p-8">
+            <div class="flex justify-center mb-8">
+                <div class="bg-indigo-600 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold text-center text-white mb-2">Bem-vindo(a) de volta</h1>
+            <p class="text-gray-400 text-center mb-8">Entre na sua conta para continuar</p>
+            
+            <form id="loginForm" class="space-y-6">
+                <div id="errorContainer" class="hidden">
+                    <div class="error-message bg-red-900/50 text-red-200 px-4 py-3 rounded-lg text-sm">
+                        <span id="errorText"></span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="email" name="email" required 
+                           class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Senha</label>
+                    <input type="password" id="password" name="password" required 
+                           class="input-field w-full px-4 py-3 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" 
+                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-800">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-300">Lembrar de mim</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full py-3 px-4 rounded-lg font-medium text-white">
+                    <span id="loginBtnText">Entrar</span>
+                    <span id="loginSpinner" class="hidden ml-2">
+                        <svg class="animate-spin h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">Não tem uma conta? <a href="register.html" class="text-indigo-400 hover:text-indigo-300 font-medium">Registre-se</a></p>
+            </div>
+        </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            const loginBtnText = document.getElementById('loginBtnText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorText = document.getElementById('errorText');
+            
+            // Show loading state
+            loginBtnText.textContent = 'Entrando...';
+            loginSpinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Credenciais inválidas');
+                }
+                
+                const data = await response.json();
+                
+                // Store token in localStorage if "remember me" is checked
+                if (rememberMe) {
+                    localStorage.setItem('authToken', data.token);
+                } else {
+                    sessionStorage.setItem('authToken', data.token);
+                }
+                
+                // Redirect to chat
+                window.location.href = '/';
+                
+            } catch (error) {
+                // Show error message
+                errorText.textContent = error.message;
+                errorContainer.classList.remove('hidden');
+                
+                // Shake animation for error
+                errorContainer.querySelector('.error-message').classList.add('animate__animated', 'animate__shakeX');
+                setTimeout(() => {
+                    errorContainer.querySelector('.error-message').classList.remove('animate__animated', 'animate__shakeX');
+                }, 1000);
+                
+                console.error('Login error:', error);
+            } finally {
+                // Reset button state
+                loginBtnText.textContent = 'Entrar';
+                loginSpinner.classList.add('hidden');
+            }
+        });
+
+        // Check for redirect from successful registration
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('registered')) {
+                const successMessage = document.createElement('div');
+                successMessage.className = 'mb-6 bg-green-900/50 text-green-200 px-4 py-3 rounded-lg text-sm animate__animated animate__fadeIn';
+                successMessage.textContent = 'Registro realizado com sucesso! Faça login para continuar.';
+                
+                const form = document.getElementById('loginForm');
+                form.parentNode.insertBefore(successMessage, form);
+            }
+        });
+    </script>
+</body>
+</html>
